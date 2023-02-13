@@ -1,0 +1,25 @@
+footer {
+    width: 500px;
+    background-color: #3C3550;
+    padding: 10px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+footer strong {
+    color: #FFF;
+    font-size: large;
+    
+}
+
+footer div {
+    display: flex;
+    width: 90%;
+    justify-content: space-between;
+}
+
+footer div p {
+    color: #FFF8;
+}
