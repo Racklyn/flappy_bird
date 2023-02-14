@@ -5,16 +5,19 @@ import Footer from './components/Footer';
 import Bird from './components/Bird';
 
 import city from './assets/city.jpg'
-import wall from './assets/wall.png'
+import ground from './assets/ground.png'
 
 const BIRD_SIZE = 30
 const BIRD_LEFT = 30
 const GAME_WIDTH = 500
 const GAME_HEIGHT = 500
+const GROUND_WIDTH = 1000
+const GROUND_HEIGHT = 12
 const GRAVITY = 8
-const JUMP_HEIGHT = 100
+const JUMP_HEIGHT = 80
 const OBSTACLE_WIDTH = 40
 const OBSTACLE_GAP = 200
+const JUMP_COUNT_START = 4
 //const OBSTACLE_SPEED = 10
 
 function App() {
@@ -25,16 +28,37 @@ function App() {
   const [obstacleHeight, setObstacleHeight] = useState(100)
   const [obstacleLeft, setObstacleLeft] = useState(GAME_WIDTH)
   const [score, setScore] = useState(0)
+  const [groundImgStart, setGroundImgStart] = useState(0)
+
   const [obstacleSpeed, setObstacleSpeed] = useState(10)
+  const [gravity, setGravity] = useState(GRAVITY)
+  const [jumpHeight, setJumpHeight] = useState(JUMP_HEIGHT)
+  const [jumpCount, setJumpCount] = useState(0)
+
 
   const bottomObstacleHeight = GAME_HEIGHT - OBSTACLE_GAP - obstacleHeight
 
   useEffect(()=>{
     let timeTid
 
-    if(gameHasStarted && birdPosition < GAME_HEIGHT - BIRD_SIZE){
+    if(gameHasStarted){
       timeTid = setInterval(() => {
-        setBirdPosition(birdPosition + GRAVITY)
+        let newPosition;
+        
+        if (jumpCount > 0){
+          newPosition =  birdPosition - jumpHeight / JUMP_COUNT_START
+          if (newPosition < 0){
+            newPosition = 0
+          }
+          setJumpCount((jCount) => jCount - 1)
+        }else{
+          newPosition = birdPosition + gravity
+          if (newPosition > GAME_HEIGHT - BIRD_SIZE){
+            newPosition = GAME_HEIGHT - BIRD_SIZE
+          }
+        }
+
+        setBirdPosition(newPosition)
       }, 24)
     }
 
@@ -42,23 +66,32 @@ function App() {
       clearInterval(timeTid)
     }
 
-  }, [birdPosition, gameHasStarted])
+  }, [birdPosition, gravity, gameHasStarted, jumpCount, jumpHeight])
 
 
   //Updating game speed:
   useEffect(() => {
-    if(score%3 === 0){
+    if(score % 3 === 0){
       setObstacleSpeed((speed) => speed + 1)
+      setGravity((gravity) => gravity + 0.2)
+      setJumpHeight((jumpHeight) => jumpHeight + 0.2)
     }
   }, [score])
 
 
+  //updating Obstacles and Ground position
   useEffect(()=>{
     let obstacleId
 
     if(gameHasStarted && obstacleLeft >= -OBSTACLE_WIDTH){
       obstacleId = setInterval(() => {
         setObstacleLeft(obstacleLeft - obstacleSpeed)
+        setGroundImgStart((pos) => {
+          let newPos = pos + obstacleSpeed
+          if (newPos > GROUND_WIDTH/2) newPos = 0
+          return newPos
+        }
+        )
       }, 24)
     }else{
       setObstacleLeft(GAME_WIDTH)
@@ -86,20 +119,23 @@ function App() {
     }
   }, [obstacleLeft, birdPosition, bottomObstacleHeight, obstacleHeight])
 
+
   useEffect(() => {
     function handleClick(e) {
       if (e.key === 'a' || e.key === ' ' || e.key === 'ArrowUp'){
+        //let newBirdPosition = birdPosition - jumpHeight
 
-        let newBirdPosition = birdPosition - JUMP_HEIGHT
+        setJumpCount(JUMP_COUNT_START)
+
         if (!gameHasStarted){
           setGameHasStarted(true)
         }
     
-        if (newBirdPosition < 0){
-          setBirdPosition(0)
-        }else{
-          setBirdPosition(newBirdPosition)
-        }
+        // if (newBirdPosition < 0){
+        //   setBirdPosition(0)
+        // }else{
+        //   setBirdPosition(newBirdPosition)
+        // }
          
       }else if (e.key === 'Enter'){
         alert('Game paused')
@@ -118,29 +154,35 @@ function App() {
 
 
 
-
   return (
-    <Div>
-      <GameBox width={GAME_WIDTH} height={GAME_HEIGHT} image={city}>
-        <Obstacle
-          top={0}
-          width={OBSTACLE_WIDTH}
-          height={obstacleHeight}
-          left={obstacleLeft}
-          //image={wall}
-        />
-        <Obstacle
-          top={GAME_HEIGHT - (obstacleHeight + bottomObstacleHeight)}
-          width={OBSTACLE_WIDTH}
-          height={bottomObstacleHeight}
-          left={obstacleLeft}
-          //image={wall}
-        />
-        <Bird size={BIRD_SIZE} top={birdPosition} left={BIRD_LEFT}/>
-      </GameBox>
-      <span>{score}</span>
-      <Footer controlsContent={["a / space - Jump"]} />
-    </Div>
+    <Main>
+      <Div>
+        <GameBox width={GAME_WIDTH} height={GAME_HEIGHT + GROUND_HEIGHT} image={city}>
+          <Obstacle
+            top={0}
+            width={OBSTACLE_WIDTH}
+            height={obstacleHeight}
+            left={obstacleLeft}
+          />
+          <Obstacle
+            top={GAME_HEIGHT - (obstacleHeight + bottomObstacleHeight)}
+            width={OBSTACLE_WIDTH}
+            height={bottomObstacleHeight}
+            left={obstacleLeft}
+          />
+          <Bird size={BIRD_SIZE} top={birdPosition} left={BIRD_LEFT}/>
+          <Ground
+            width={GROUND_WIDTH}
+            height={GROUND_HEIGHT}
+            image={ground}
+            imgStart={groundImgStart}
+          />
+        </GameBox>
+        <span>{score}</span>
+        <Footer controlsContent={["a / space - Jump", "Enter - Pause"]} />
+      </Div>
+
+    </Main>
   );
 }
 
@@ -159,15 +201,22 @@ export default App;
 //   left: ${(props) => props.left ?? 0}px;
 //   border-radius: 50%;
 // `
-
-
-const Div = styled.div`
+const Main = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
   align-items: center;
+`
+
+const Div = styled.div`
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  align-items: center;
   & span {
     color: white;
+    background-color: #3C355090;
+    padding 2px 8px;
     font-size: 24px;
     position: absolute;
     z-index: 2;
@@ -183,6 +232,18 @@ const GameBox = styled.div`
   background-size: cover;
   background-color: #29F;
   overflow: hidden;
+`
+
+const Ground = styled.div`
+  width: ${(props) => props.width}px;
+  height: ${(props) => props.height}px;
+  position: absolute;
+  left: -${(props) => props.imgStart}px;
+  bottom: 0px;
+  background-image: url(${(props) => props.image});
+  background-repeat: repeat;
+  background-size: cover;
+  background-color: gray;
 `
 
 const Obstacle = styled.div`

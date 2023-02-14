@@ -5,6 +5,7 @@ function Footer({controlsContent}) {
     return (
         <footer>
             <strong>FLAPPY BIRD</strong>
+            <hr/>
             <div>
                 {controlsContent.map(t => 
                     <p>{t}</p>
