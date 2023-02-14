@@ -10,8 +10,14 @@ footer {
 
 footer strong {
     color: #FFF;
-    font-size: large;
-    
+    font-size: x-large;
+}
+
+footer hr {
+    width: 90%;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #FFF6;
 }
 
 footer div {
@@ -22,4 +28,6 @@ footer div {
 
 footer div p {
     color: #FFF8;
+    font-size: large;
+    margin: 6px;
 }
