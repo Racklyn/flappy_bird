@@ -5,9 +5,10 @@ import Footer from './components/Footer';
 import Bird from './components/Bird';
 import { initializeApp } from "firebase/app";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
-import { getDatabase, ref, set, onDisconnect, update } from "firebase/database";
+import { getDatabase, ref, set, onDisconnect, onValue, onChildAdded, onChildChanged, onChildRemoved, update } from "firebase/database";
 import city from './assets/city.jpg'
 import ground from './assets/ground.png'
+import Modal from './components/Modal';
 
 const BIRD_SIZE = 30
 const BIRD_LEFT = 30
@@ -20,7 +21,7 @@ const JUMP_HEIGHT = 80
 const OBSTACLE_WIDTH = 40
 const OBSTACLE_GAP = 200
 const JUMP_COUNT_START = 4
-//const OBSTACLE_SPEED = 10
+const OBSTACLE_SPEED = 10
 
 const firebaseConfig = {
   apiKey: "AIzaSyAiIoGddi-ueyFCY_Y0dgeNfsJWj4U3G4o",
@@ -36,31 +37,53 @@ function App() {
 
   //const [gameSize, setGameSize] = useState(500)
   const [birdPosition, setBirdPosition] = useState(250)
+  const [score, setScore] = useState(0)
+
   const [gameHasStarted, setGameHasStarted] = useState(false)
+  const [isGameOver, setIsGameOver] = useState(false)
+  const [gameHasPaused, setGameHasPaused] = useState(false)
+
+
   const [obstacleHeight, setObstacleHeight] = useState(100)
   const [obstacleLeft, setObstacleLeft] = useState(GAME_WIDTH)
-  const [score, setScore] = useState(0)
   const [groundImgStart, setGroundImgStart] = useState(0)
 
-  const [obstacleSpeed, setObstacleSpeed] = useState(10)
+  const [obstacleSpeed, setObstacleSpeed] = useState(OBSTACLE_SPEED)
   const [gravity, setGravity] = useState(GRAVITY)
   const [jumpHeight, setJumpHeight] = useState(JUMP_HEIGHT)
   const [jumpCount, setJumpCount] = useState(0)
-  const [playerRef, setPlayerRef] = useState();
-  
+  const [playerRef, setPlayerRef] = useState(null);
+  const [player, setPlayer] = useState();
+  //Firebase - Connection
+  const app = initializeApp(firebaseConfig);
+  const database = getDatabase(app);
+  const auth = getAuth(app);
+
   const bottomObstacleHeight = GAME_HEIGHT - OBSTACLE_GAP - obstacleHeight
-  let p1 = {
-    id: null,
-    username: "Lucas01",
-    score: 6,
-    x: 3,
-    y: 3,
-  };
+
+  const [players, setPlayers]  = useState([]);
+
+const allPlayersRef = ref(database, 'players');
+
+
+useEffect(()=> {
+  let l1 = [];
+  let data;
+  onValue(allPlayersRef, (snapshot)=>{
+    data = snapshot.val();    
+    for(let d in data){
+      l1.push(data[d])
+    }
+  })
+  
+  setPlayers(l1)
+  
+}, [])
 
   useEffect(()=>{
     let timeTid
 
-    if(gameHasStarted){
+    if(gameHasStarted && !gameHasPaused && !isGameOver){
       timeTid = setInterval(() => {
         let newPosition;
         
@@ -85,7 +108,7 @@ function App() {
       clearInterval(timeTid)
     }
 
-  }, [birdPosition, gravity, gameHasStarted, jumpCount, jumpHeight])
+  }, [birdPosition, gravity, gameHasStarted, isGameOver, gameHasPaused, jumpCount, jumpHeight])
 
 
   //Updating game speed:
@@ -100,6 +123,8 @@ function App() {
   //updating Obstacles and Ground position
   useEffect(()=>{
     let obstacleId
+
+    if (gameHasPaused || isGameOver) return
 
     if(gameHasStarted && obstacleLeft >= -OBSTACLE_WIDTH){
       obstacleId = setInterval(() => {
@@ -123,7 +148,7 @@ function App() {
       clearInterval(obstacleId)
     }
 
-  }, [gameHasStarted, obstacleLeft, obstacleSpeed])
+  }, [gameHasStarted, gameHasPaused, isGameOver, obstacleLeft, obstacleSpeed])
 
   useEffect(() => {
     const hasCollidedWithTopObstacle = birdPosition >= 0 && birdPosition < obstacleHeight
@@ -132,27 +157,37 @@ function App() {
 
     if (obstacleLeft >= -OBSTACLE_WIDTH && obstacleLeft <= BIRD_SIZE + BIRD_LEFT
       && (hasCollidedWithTopObstacle || hasCollidedWithBottomObstacle)){
-      p1.score = score;
-      set(playerRef, p1).then( () => {
-        setGameHasStarted(false);
-        setScore(0);
-        setBirdPosition(250);
-      }
-      );
-      
+    setPlayer({
+      id: player.id,
+      score: score,
+      username: player.username
+    })
+    player.score = score;
+    update(playerRef, player);  
+    setIsGameOver(true)
+    setJumpCount(0)
+    
     }
   }, [obstacleLeft, birdPosition, bottomObstacleHeight, obstacleHeight])
 
 
   useEffect(() => {
     function handleClick(e) {
-      if (e.key === 'a' || e.key === ' ' || e.key === 'ArrowUp'){
+      if (e.key === 'a' || e.key === 'Enter' || e.key === 'ArrowUp'){
         //let newBirdPosition = birdPosition - jumpHeight
 
-        setJumpCount(JUMP_COUNT_START)
-
-        if (!gameHasStarted){
+        if (!gameHasStarted && !isGameOver){
           setGameHasStarted(true)
+        }
+
+        if (isGameOver && e.key === 'Enter'){
+          setScore(0)
+          setObstacleSpeed(OBSTACLE_SPEED)
+          setObstacleLeft(GAME_WIDTH)
+          setBirdPosition(250)
+          setIsGameOver(false)
+        }else{
+          setJumpCount(JUMP_COUNT_START)
         }
     
         // if (newBirdPosition < 0){
@@ -161,10 +196,12 @@ function App() {
         //   setBirdPosition(newBirdPosition)
         // }
          
-      }else if (e.key === 'Enter'){
-        alert('Game paused')
-        gameHasStarted(false)
+      }else if (e.key === ' ' && gameHasStarted && !isGameOver){
+        setGameHasPaused(s => !s)
+        //gameHasStarted(false)
       }
+
+      
     }
 
     window.addEventListener('keydown', handleClick)
@@ -174,13 +211,7 @@ function App() {
     }
 
 
-  })
-
-  //Firebase - Connection
-  const app = initializeApp(firebaseConfig);
-  const database = getDatabase(app);
-  const auth = getAuth(app);
-  
+  })  
 
   function firebaseConnection(){
     signInAnonymously(auth)
@@ -197,17 +228,22 @@ function App() {
       if (user) {
         let playerId = user.uid;
         setPlayerRef(ref(database, 'players/' + playerId));
-        p1.id= playerId;
-        set(playerRef,p1);
+        let player = {
+          id: playerId,
+          username: "Mauluniqu",
+          score: 0
+        }
+        setPlayer(player);
+        set(playerRef,player);
 
-        onDisconnect(playerRef).remove();
+        onDisconnect(ref(database, 'players/' + playerId)).remove();
       } else {
         console.log("You are logout")
       }
-
-    });
-
       
+    });
+    
+    
   }
 
   useEffect(() => {
@@ -218,6 +254,26 @@ function App() {
     <Main>
       <Div>
         <GameBox width={GAME_WIDTH} height={GAME_HEIGHT + GROUND_HEIGHT} image={city}>
+
+          {
+            !gameHasStarted &&
+            <Modal transparent content="Press 'A' to start"/>
+          }
+
+          {
+            gameHasPaused &&
+            <Modal title="Paused" content="Press 'Enter' to resume"/>
+          }
+
+          {
+            isGameOver &&
+            <Modal title="Game Over!" content="Press 'Enter' to restart">
+              <strong className='score-text'>Your Score: <p>{score}</p></strong>
+              <p>Best: 0</p>
+              <br/>
+            </Modal>
+          }
+
           <Obstacle
             top={0}
             width={OBSTACLE_WIDTH}
@@ -239,9 +295,15 @@ function App() {
           />
         </GameBox>
         <span>{score}</span>
-        <Footer controlsContent={["a / space - Jump", "Enter - Pause"]} />
+        <Footer controlsContent={["JUMP - a / ↑ / Enter", "PAUSE - Space"]} />
       </Div>
-
+        {
+          players.map((data, key)=>{
+            console.log(players)
+            return ( <div key={key} >{data.username +" "+ data.score}</div>);
+          })
+        }
+          
     </Main>
   );
 }
