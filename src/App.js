@@ -3,7 +3,9 @@ import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Footer from './components/Footer';
 import Bird from './components/Bird';
-
+import { initializeApp } from "firebase/app";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
+import { getDatabase, ref, set } from "firebase/database";
 import city from './assets/city.jpg'
 import wall from './assets/wall.png'
 
@@ -16,6 +18,16 @@ const JUMP_HEIGHT = 100
 const OBSTACLE_WIDTH = 40
 const OBSTACLE_GAP = 200
 //const OBSTACLE_SPEED = 10
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAiIoGddi-ueyFCY_Y0dgeNfsJWj4U3G4o",
+  authDomain: "flappy-app-6e760.firebaseapp.com",
+  databaseURL: "https://flappy-app-6e760-default-rtdb.firebaseio.com",
+  projectId: "flappy-app-6e760",
+  storageBucket: "flappy-app-6e760.appspot.com",
+  messagingSenderId: "485228613222",
+  appId: "1:485228613222:web:536454db416b4687ec67a7"
+};
 
 function App() {
 
@@ -116,8 +128,46 @@ function App() {
 
   })
 
+  //Firebase - Connection
+  const app = initializeApp(firebaseConfig);
+  const database = getDatabase(app);
 
+  let playerId;
+  let playerRef;
 
+  function firebaseConnection(){
+    const auth = getAuth(app);
+    signInAnonymously(auth)
+      .then(() => {
+        // Signed in..
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(error);
+      });
+
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          playerId = user.uid;
+          const playerRef = ref(database, 'player/' + playerId);
+          set(playerRef, {
+            id: playerId,
+            username: "Lucas01",
+            score: 0,
+            x: 3,
+            y: 3,
+            
+          });
+        } else {
+          console.log("You are logout")
+        }
+      });
+  }
+
+  useEffect(() => {
+    firebaseConnection();
+  });
 
   return (
     <Div>
@@ -145,10 +195,6 @@ function App() {
 }
 
 export default App;
-
-
-
-
 
 // const Bird = styled.div`
 //   position: absolute;
