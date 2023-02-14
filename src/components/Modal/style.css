@@ -1,0 +1,41 @@
+.modal {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    text-shadow: 3px 1px 0px #000;
+    z-index: 10;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.dark-bg {
+    background: #0009;
+}
+
+.modal h2 {
+    font-size: 40px;
+    text-decoration: underline;
+}
+
+.modal p {
+    font-size: larger;
+    margin: 6px;
+    color: #FFFB;
+}
+
+.modal .score-text {
+    color: #FFFD;
+    font-size: larger;
+    display: flex;
+    align-items: center;
+}
+
+.modal .score-text p {
+    color: #FFFD;
+    font-size: x-large;
+    margin: 0px;
+    margin-left: 10px;
+}
