@@ -1,0 +1,28 @@
+.container {
+    background: #6C6590;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h1 {
+    font-size: 40px;
+    color: white;
+    padding-top: 20px;
+    padding-bottom: 40px;
+}
+
+.colorContainer {
+    flex-grow: 1;
+    
+    p {
+        width: 300px;
+    }
+
+    div {
+        background-color: aquamarine;
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+    }
+}
