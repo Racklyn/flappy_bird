@@ -3,7 +3,7 @@ import './style.css'
 
 function Footer({controlsContent}) {
     return (
-        <footer>
+        <footer style={{ flexGrow: 1 }}>
             <strong>FLAPPY BIRD</strong>
             <hr/>
             <div>

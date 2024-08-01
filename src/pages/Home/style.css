@@ -1,0 +1,14 @@
+.container {
+    background: #6C6590;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+h1 {
+    font-size: 40px;
+    color: white;
+    padding: 20px 0;
+}

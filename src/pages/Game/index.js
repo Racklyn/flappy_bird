@@ -220,6 +220,7 @@ const Div = styled.div`
   flex-direction: column;
   user-select: none;
   align-items: center;
+  height: 100%;
   & span {
     color: white;
     background-color: #3C355090;
