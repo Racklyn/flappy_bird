@@ -7,8 +7,8 @@ function Footer({controlsContent}) {
             <strong>FLAPPY BIRD</strong>
             <hr/>
             <div>
-                {controlsContent.map(t => 
-                    <p>{t}</p>
+                {controlsContent.map((t, i) => 
+                    <p key={i}>{t}</p>
                 )}
             </div>
         </footer>
