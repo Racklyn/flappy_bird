@@ -44,6 +44,8 @@ function App() {
 
   const bottomObstacleHeight = GAME_HEIGHT - OBSTACLE_GAP - obstacleHeight
 
+
+  // Bird motion
   useEffect(()=>{
     let timeTid
 
@@ -127,6 +129,7 @@ function App() {
   }, [obstacleLeft, birdPosition, bottomObstacleHeight, obstacleHeight])
 
 
+  // Handle press
   useEffect(() => {
     function handleClick(e) {
       if (e.key === 'a' || e.key === 'Enter' || e.key === 'ArrowUp'){
@@ -253,7 +256,7 @@ const Div = styled.div`
   & span {
     color: white;
     background-color: #3C355090;
-    padding 2px 8px;
+    padding: 2px 8px;
     font-size: 24px;
     position: absolute;
     z-index: 2;
