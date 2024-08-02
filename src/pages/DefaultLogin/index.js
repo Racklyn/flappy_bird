@@ -5,6 +5,8 @@ import BackButton from '../../components/BackButton';
 import Button from "../../components/Button";
 import Input from "../../components/Input";
 import { useNavigate } from 'react-router-dom';
+import { useMain } from '../../Context/Main';
+import firestore from '../../firebase/main';
 
 import black from '../../assets/birds/black.png';
 import blue from '../../assets/birds/blue.png';
@@ -19,6 +21,12 @@ import yellow from '../../assets/birds/yellow.png';
 function DefaultLogin({isNewUser}) {
 
     const navigate = useNavigate();
+    const [setUser] = useMain();
+
+    const usersRef = firestore.collection('users');
+    //const query = usersRef.orderBy('')
+
+
 
     const birds = {
         'yellow': yellow,
@@ -34,9 +42,15 @@ function DefaultLogin({isNewUser}) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [selectedBird, setSelectedBird] = useState('yellow');
+    const [loading, setLoading] = useState(false);
 
 
-    function handleFormSubmit(e) {
+    function handleBirdSelector(bird) {
+        if (loading) return;
+        setSelectedBird(bird);
+    }
+    
+    async function handleFormSubmit(e) {
         e.preventDefault();
         
         if (!username || !password) {
@@ -45,30 +59,51 @@ function DefaultLogin({isNewUser}) {
         }
 
         //TODO: adicionar try-catch aqui
-        if (isNewUser) {
-            //TODO: Fazer requisição de criar user
-        }else {
-            //TODO: Fazer requisição para checar senha e pegar dados do user
-        }
+        
+        try {
+            setLoading(true);
 
-        navigate('/fly');
+            if (isNewUser) {
+                const newUser = {
+                    username,
+                    password,
+                    bird: selectedBird,
+                    bestScore: 0,
+                    //TODO: passar lista de score aqui?
+                }
+                await usersRef.add(newUser);
+                setUser(newUser);
+            }else {
+                //TODO: Fazer requisição para checar senha e pegar dados do user
+                
+            }
+        } catch (error) {
+            //TODO: Tratar erro
+            console.error(error);
+        } finally {
+            setLoading(false);
+
+            navigate('/fly');
+        }
     }
 
     return (
         <form className="container" onSubmit={(e) => handleFormSubmit(e)}>
             <header>
                 <BackButton/>
-                <h1>{isNewUser ? 'Novo usuário' : 'Login'}</h1>
+                <h1>{isNewUser ? 'New player' : 'Login'}</h1>
             </header>
 
             <Input
                 label="Username"
                 onChange={(e) => setUsername(e.target.value)}
+                readOnly={loading}
             />
 
             <Input
-                label="Senha"
+                label="Password"
                 onChange={(e) => setPassword(e.target.value)}
+                readOnly={loading}
                 password
             />
 
@@ -78,7 +113,7 @@ function DefaultLogin({isNewUser}) {
                     isNewUser &&
                     <>
                         <p style={{fontSize: 30}}>
-                            Cor do Bird
+                            Choose your bird
                         </p>
 
                         <div className="selectorContainer">
@@ -88,7 +123,8 @@ function DefaultLogin({isNewUser}) {
                                     return (
                                         <BirdColorSelector
                                             isSelected={bird === selectedBird}
-                                            onClick={() => setSelectedBird(bird)}
+                                            loading={loading}
+                                            onClick={() => handleBirdSelector(bird)}
                                             key={i}
                                         >
                                             <img width={30} src={img} alt={bird}/>
@@ -101,13 +137,21 @@ function DefaultLogin({isNewUser}) {
                 }
             </div>
 
-            <Button
-                style={{marginBottom: 60}}
-                disabled={!username || !password}
-                type='submit'
-            >
-                {isNewUser ? 'Cadastrar' : 'Entrar'}
-            </Button>            
+            {
+                loading
+                ? (
+                    <p style={{fontSize: 20}}>Loading...</p> 
+                ) : (
+                    <Button
+                        hidden={loading}
+                        style={{marginBottom: 60}}
+                        disabled={!username || !password}
+                        type='submit'
+                    >
+                        {isNewUser ? 'Register' : 'Login'}
+                    </Button>
+                )
+            }
         </form>
     )
     
@@ -124,7 +168,7 @@ const BirdColorSelector = styled.span`
     justify-content: center;
     border-radius: 4px;
     user-select: none;
-    cursor: ${(props) => !props.isSelected && 'pointer'};
+    cursor: ${(props) => (!props.isSelected && !props.loading) && 'pointer'};
     
     border: ${(props) => props.isSelected ? '2px solid #EFBB18' : 'none'};
     transform: ${(props) => props.isSelected ? 'scale(1.05)': 'none'};
@@ -133,6 +177,6 @@ const BirdColorSelector = styled.span`
 
     :hover {
         opacity: ${(props) => !props.isSelected && 0.9};
-        transform: scale(1.05);
+        transform: ${(props) => !props.loading && 'scale(1.05)'};
     }
 `

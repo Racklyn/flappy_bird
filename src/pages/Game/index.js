@@ -9,9 +9,12 @@ import ground from '../../assets/ground.png'
 import Modal from '../../components/Modal';
 import constants from '../../utils/constants';
 import GameHeader from '../../components/GameHeader';
+import { useMain } from '../../Context/Main';
 
 
 function Game() {
+
+  const mainContext = useMain();
 
   const [birdPosition, setBirdPosition] = useState(250)
   const [score, setScore] = useState(0)
@@ -165,13 +168,12 @@ function Game() {
 
   return (
       <Div>
-        <GameHeader/>
-
+        <GameHeader showMenuOptions/>
         <GameBox width={constants.GAME_WIDTH} height={constants.GAME_HEIGHT + constants.GROUND_HEIGHT} image={city}>
 
           {
             !gameHasStarted &&
-            <Modal transparent content="Press 'A' to start"/>
+            <Modal transparent content="Press 'A' or '↑' to start"/>
           }
 
           {
@@ -221,7 +223,6 @@ export default Game;
 const Div = styled.div`
   display: flex;
   flex-direction: column;
-  user-select: none;
   align-items: center;
   height: 100%;
 `
@@ -237,6 +238,7 @@ const GameBox = styled.div`
   overflow: hidden;
   position: relative;
   text-align: center;
+  user-select: none;
 
   span {
     color: white;
@@ -250,11 +252,14 @@ const GameBox = styled.div`
   }
 `
 
-const Ground = styled.div`
+const Ground = styled.div.attrs(props => ({
+  style: {
+      left: -props.imgStart,
+  },
+}))`
   width: ${(props) => props.width}px;
   height: ${(props) => props.height}px;
   position: absolute;
-  left: -${(props) => props.imgStart}px;
   bottom: 0px;
   background-image: url(${(props) => props.image});
   background-repeat: repeat;
@@ -262,15 +267,17 @@ const Ground = styled.div`
   background-color: gray;
 `
 
-const Obstacle = styled.div`
+const Obstacle = styled.div.attrs(props => ({
+  style: {
+    left: props.left,
+    top: props.top,
+    width: props.width,
+    height: props.height,
+  },
+}))`
   position: relative;
-  top: ${(props) => props.top}px;
   background-image: url(${(props) => props.image});
   background-repeat: no-repeat;
   background-size: cover;
   background-color: #549;
-  width: ${(props) => props.width}px;
-  height: ${(props) => props.height}px;
-  left: ${(props) => props.left}px;
-
 `

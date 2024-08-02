@@ -1,9 +1,30 @@
 import React from "react";
 import styled from 'styled-components';
+import { useMain } from "../Context/Main";
 
-import bird from '../assets/birds/yellow.png'
+import black from '../assets/birds/black.png';
+import blue from '../assets/birds/blue.png';
+import green from '../assets/birds/green.png';
+import grey from '../assets/birds/grey.png';
+import pink from '../assets/birds/pink.png';
+import purple from '../assets/birds/purple.png';
+import red from '../assets/birds/red.png';
+import yellow from '../assets/birds/yellow.png';
 
 function Bird({size, top, left}){
+
+    const {user} = useMain()
+
+    const birds = {
+        'yellow': yellow,
+        'red': red,
+        'pink': pink,
+        'purple': purple,
+        'blue': blue,
+        'green': green,
+        'grey': grey,
+        'black': black,
+    };
 
     return (
         <BirdContainer
@@ -11,7 +32,7 @@ function Bird({size, top, left}){
             top={top}
             left={left}
         >
-            <img src={bird} alt="B"/>
+            <img src={birds[user?.bird] ?? birds.yellow} alt="B"/>
         </BirdContainer>
     )
 }
@@ -19,12 +40,15 @@ function Bird({size, top, left}){
 export default Bird
 
 
-const BirdContainer = styled.div`
+const BirdContainer = styled.div.attrs(props => ({
+style: {
+    left: props.left ?? 0,
+    top: props.top,
+    width: props.size,
+    height: props.size,
+},
+}))`
   position: absolute;
-  display: flex;
-  height: ${(props) => props.size}px;
-  width: ${(props) => props.size}px;
-  top: ${(props) => props.top}px;
-  left: ${(props) => props.left ?? 0}px;
+  display: flex;  
   border-radius: 50%;
 `

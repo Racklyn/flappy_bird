@@ -1,10 +1,11 @@
 import styled from "styled-components";
 
-function Input({label, password, onChange}) {
+function Input({label, password, onChange, readOnly}) {
     return (
         <InputContainer>
             <label>{label}</label>
             <input
+                readOnly={readOnly}
                 type={password ? 'password' : 'text'}
                 onChange={v => onChange(v)}
             />

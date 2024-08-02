@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home'
 import Game from './pages/Game';
 import DefaultLogin from './pages/DefaultLogin';
+import History from './pages/History';
+import Ranking from './pages/Ranking';
 
 
 export default function Router() {
@@ -12,6 +14,8 @@ export default function Router() {
             <Route path="login" element={<DefaultLogin/>} />
             <Route path="register" element={<DefaultLogin isNewUser/>} />
             <Route path="fly" element={<Game/>} />
+            <Route path="history" element={<History/>} />
+            <Route path="ranking" element={<Ranking/>} />
         </Routes>
       </BrowserRouter>
     );

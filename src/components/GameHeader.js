@@ -1,28 +1,49 @@
 import styled from "styled-components";
 import historyIcon from '../assets/history_icon.png'
 import rankingIcon from '../assets/ranking_icon.png'
+import BackButton from "./BackButton";
+import { Link } from "react-router-dom";
+import { useMain } from "../Context/Main";
 
-function GameHeader({user}) {
+function GameHeader({showMenuOptions}) {
+
+    const mainContext = useMain();
+
     return (
         <Header>
             <strong>FLAPPY BIRD</strong>
             <Separator/>
             <div className="menu">
-                <span>
-                    <MenuBtn style={{marginRight: 6}}>
-                        <img src={historyIcon} width={20}/>
-                        Histórico
-                    </MenuBtn>
-                    <MenuBtn>
-                        <img src={rankingIcon} width={20}/>
-                        Ranking
-                    </MenuBtn>
-                </span>
+                {
+                    showMenuOptions
+                    ? (
+                        <span>
+                            <Link to='/history'>
+                                <MenuBtn style={{marginRight: 6}}>
+                                    <img src={historyIcon} width={20}/>
+                                    History
+                                </MenuBtn>
+                            </Link>
+
+                            <Link to='/ranking'>
+                                <MenuBtn>
+                                    <img src={rankingIcon} width={20}/>
+                                    Ranking
+                                </MenuBtn>
+                            </Link>
+                        </span>
+                    ) : (
+                        <span>
+                            <BackButton width={26} to='/fly' label='Back'/>
+                        </span>
+                    )
+
+                }
 
                 <span>
-                    <Username>{user?.username ?? '...'}</Username>
+                    <Username>{mainContext.user?.username ?? '...'}</Username>
                     <BestScore>
-                        Seu melhor <strong>{user?.bestScore ?? '-'}</strong>
+                        Best score <strong>{mainContext.user?.bestScore ?? '-'}</strong>
                     </BestScore>
                 </span>
             </div>
