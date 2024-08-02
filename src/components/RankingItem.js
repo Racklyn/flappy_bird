@@ -1,11 +1,11 @@
 import styled from "styled-components";
 
-function RankingItem({pos, username, time, score}) {
+function RankingItem({pos, username, time, score, isCurrentPlayer}) {
 
     const podium = ['gold', '#BCC8CF', '#C53'];
 
     return (
-        <Container>
+        <Container highlighted={isCurrentPlayer}>
             <Position
                 borderColor={podium[pos]}
             >{pos+1}</Position>
@@ -24,7 +24,7 @@ const Container = styled.div`
     height: 40px;
     display: flex;
     align-items: center;
-    background-color: #AAB9;
+    background-color: ${(props) => props.highlighted ? '#99B9' : '#AAB9'};
     margin-bottom: 6px;
     border-radius: 4px;
     padding: 0px 12px;
@@ -36,6 +36,7 @@ const Container = styled.div`
     .username {
         font-size: 18px;
         color: #113;
+        text-decoration: ${(props) => props.highlighted && 'underline'};
     }
 
     .date {
@@ -46,7 +47,9 @@ const Container = styled.div`
     strong {
         margin-left: 36px;
         font-size: 22px;
+        width: 20px;
         color: #4A4380;
+        text-shadow: 1px 1px 0px #000;
     }
 
 `

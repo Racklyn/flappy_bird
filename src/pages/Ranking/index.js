@@ -1,11 +1,13 @@
 import './style.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import GameHeader from '../../components/GameHeader';
 import RankingItem from '../../components/RankingItem';
 import firestore from '../../firebase';
-import { useEffect } from 'react';
+import { useMain } from '../../Context/Main';
 
 function Ranking() {
+
+    const {user} = useMain();
 
     const [loading, setLoading] = useState(true);
     const [bestUsers, setBestUsers] = useState([]);
@@ -34,12 +36,13 @@ function Ranking() {
                 :(
                     <div className='itemsContainer'>
                         {
-                            bestUsers.map((user, i) => 
+                            bestUsers.map((bestU, i) => 
                                 <RankingItem
+                                    isCurrentPlayer={bestU.id === user.username}
                                     pos={i}
-                                    username={user.id}
-                                    time={user.data().bestScoreTime}
-                                    score={user.data().bestScore}
+                                    username={bestU.id}
+                                    time={bestU.data().bestScoreTime}
+                                    score={bestU.data().bestScore}
                                     key={i}
                                 />
                             )
