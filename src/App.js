@@ -2,16 +2,18 @@ import './App.css';
 import styled from 'styled-components';
 import Router from './routes';
 import constants from './utils/constants';
-import { MainContextProvider } from './Context/Main';
+import { MainContextProvider, useMain } from './Context/Main';
+import Home from './pages/Home';
 
 
 function App() {
+  const {user} = useMain();
 
   return (
     <Main>
       <MainContextProvider>
         <Screen width={constants.SCREEN_WIDTH} height={constants.SCREEN_HEIGHT}>
-            <Router/>
+          <Router/>
         </Screen>
       </MainContextProvider>
     </Main>

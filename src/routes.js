@@ -7,17 +7,18 @@ import Ranking from './pages/Ranking';
 
 
 export default function Router() {
-    return (
-      <BrowserRouter>
-        <Routes>
-            <Route index element={<Home/>} />
-            <Route path="login" element={<DefaultLogin/>} />
-            <Route path="register" element={<DefaultLogin isNewUser/>} />
-            <Route path="fly" element={<Game/>} />
-            <Route path="history" element={<History/>} />
-            <Route path="ranking" element={<Ranking/>} />
-        </Routes>
-      </BrowserRouter>
-    );
-  }
+
+  return (
+    <BrowserRouter>
+      <Routes>
+          <Route index element={<Home/>} />
+          <Route path="login" element={<DefaultLogin/>} />
+          <Route path="register" element={<DefaultLogin isNewUser/>} />
+          <Route path="fly" element={<Game/>} />
+          <Route path="history" element={<History/>} />
+          <Route path="ranking" element={<Ranking/>} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
   

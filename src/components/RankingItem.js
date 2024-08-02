@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-function RankingItem({pos, username, date, score}) {
+function RankingItem({pos, username, time, score}) {
 
     const podium = ['gold', '#BCC8CF', '#C53'];
 
@@ -9,9 +9,11 @@ function RankingItem({pos, username, date, score}) {
             <Position
                 borderColor={podium[pos]}
             >{pos+1}</Position>
-            <span className="username">username</span>
-            <span className="date">00:00h 00/00/0000</span>
-            <strong>100</strong>
+            <span className="username">{username}</span>
+            <span className="date">
+                {time ? new Date(time).toLocaleString() : '---'}
+            </span>
+            <strong>{score}</strong>
         </Container>
     )
 }

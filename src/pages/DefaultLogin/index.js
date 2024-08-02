@@ -6,7 +6,7 @@ import Button from "../../components/Button";
 import Input from "../../components/Input";
 import { useNavigate } from 'react-router-dom';
 import { useMain } from '../../Context/Main';
-import firestore from '../../firebase/main';
+import firestore from '../../firebase';
 
 import black from '../../assets/birds/black.png';
 import blue from '../../assets/birds/blue.png';
@@ -21,11 +21,9 @@ import yellow from '../../assets/birds/yellow.png';
 function DefaultLogin({isNewUser}) {
 
     const navigate = useNavigate();
-    const [setUser] = useMain();
+    const {setUser} = useMain();
 
     const usersRef = firestore.collection('users');
-    //const query = usersRef.orderBy('')
-
 
 
     const birds = {
@@ -58,32 +56,35 @@ function DefaultLogin({isNewUser}) {
             return;
         }
 
-        //TODO: adicionar try-catch aqui
         
         try {
             setLoading(true);
 
             if (isNewUser) {
                 const newUser = {
-                    username,
                     password,
                     bird: selectedBird,
                     bestScore: 0,
-                    //TODO: passar lista de score aqui?
                 }
-                await usersRef.add(newUser);
-                setUser(newUser);
+                await usersRef.doc(username).set(newUser);
+                setUser({...newUser, username});
             }else {
-                //TODO: Fazer requisição para checar senha e pegar dados do user
-                
+                const doc = await usersRef.doc(username).get();
+                if (!doc.exists || doc.data().password !== password){
+                    throw new Error('Wrong username or password!');
+                }
+                setUser({
+                    ...doc.data(),
+                    username
+                });
             }
+
+            navigate('/fly');
         } catch (error) {
-            //TODO: Tratar erro
+            alert(error)
             console.error(error);
         } finally {
             setLoading(false);
-
-            navigate('/fly');
         }
     }
 

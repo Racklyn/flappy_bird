@@ -6,9 +6,9 @@ export const MainContext = createContext({});
 
 export function MainContextProvider({children}){
   const [user, setUser] = useState({ 
-    username: 'Racklyn',
-    bestScore: 123,
-    bird: 'black',
+    username: '',
+    bestScore: undefined,
+    bird: undefined,
 })
 
   return(

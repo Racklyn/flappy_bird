@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Footer from '../../components/Footer';
 import Bird from '../../components/Bird';
+import firestore from '../../firebase';
 
 import city from '../../assets/city.jpg'
 import ground from '../../assets/ground.png'
@@ -14,7 +15,9 @@ import { useMain } from '../../Context/Main';
 
 function Game() {
 
-  const mainContext = useMain();
+  const {user, setUser} = useMain();
+  const usersRef = firestore.collection('users');
+
 
   const [birdPosition, setBirdPosition] = useState(250)
   const [score, setScore] = useState(0)
@@ -108,6 +111,7 @@ function Game() {
 
   }, [gameHasStarted, gameHasPaused, isGameOver, obstacleLeft, obstacleSpeed])
 
+  // Colision detection
   useEffect(() => {
     const hasCollidedWithTopObstacle = birdPosition >= 0 && birdPosition < obstacleHeight
     const hasCollidedWithBottomObstacle = birdPosition <= constants.GAME_HEIGHT 
@@ -115,8 +119,7 @@ function Game() {
 
     if (obstacleLeft >= -constants.OBSTACLE_WIDTH && obstacleLeft <= constants.BIRD_SIZE + constants.BIRD_LEFT
       && (hasCollidedWithTopObstacle || hasCollidedWithBottomObstacle)){
-      setIsGameOver(true)
-      setJumpCount(0)
+      onGameOver();
     }
   }, [obstacleLeft, birdPosition, bottomObstacleHeight, obstacleHeight])
 
@@ -160,10 +163,36 @@ function Game() {
     return () => {
       window.removeEventListener('keydown', handleClick)
     }
-
-
   })
 
+  async function onGameOver() {
+    setIsGameOver(true);
+    setJumpCount(0);
+
+    const doc = await usersRef.doc(user.username).get();
+
+    if (doc.exists){
+      const storedUser = doc.data();
+
+      // Update best score:
+      if (score > storedUser.bestScore) {
+        const time = Date.now();
+        await usersRef.doc(user.username).update({
+          bestScore: score,
+          bestScoreTime: time,
+        });
+
+        user.bestScore = score;
+        user.bestScoreTime = time;
+      }
+
+      // Add score to list of scores:
+      await usersRef.doc(user.username).collection('scores').add({
+        score,
+        time: Date.now(),
+      });
+    }
+  }
 
 
   return (
