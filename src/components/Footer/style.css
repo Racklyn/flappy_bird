@@ -1,7 +1,7 @@
 footer {
     width: 500px;
-    background-color: #3C3550;
-    padding: 10px 0;
+    background-color: #6C6590;
+    padding: 2px 0;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -27,7 +27,7 @@ footer div {
 }
 
 footer div p {
-    color: #FFF8;
+    
     font-size: large;
     margin: 6px;
 }

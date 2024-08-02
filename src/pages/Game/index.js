@@ -8,6 +8,7 @@ import city from '../../assets/city.jpg'
 import ground from '../../assets/ground.png'
 import Modal from '../../components/Modal';
 import constants from '../../utils/constants';
+import GameHeader from '../../components/GameHeader';
 
 
 function Game() {
@@ -133,7 +134,7 @@ function Game() {
           setObstacleLeft(constants.GAME_WIDTH)
           setBirdPosition(250)
           setIsGameOver(false)
-        }else{
+        }else if (e.key !== 'Enter'){
           setJumpCount(constants.JUMP_COUNT_START)
         }
     
@@ -164,6 +165,8 @@ function Game() {
 
   return (
       <Div>
+        <GameHeader/>
+
         <GameBox width={constants.GAME_WIDTH} height={constants.GAME_HEIGHT + constants.GROUND_HEIGHT} image={city}>
 
           {
@@ -204,9 +207,9 @@ function Game() {
             image={ground}
             imgStart={groundImgStart}
           />
+          <span>{score}</span>
         </GameBox>
-        <span>{score}</span>
-        <Footer controlsContent={["JUMP - a / ↑ / Enter", "PAUSE - Space"]} />
+        <Footer controlsContent={["JUMP - a / ↑ ", "PAUSE - Space"]} />
       </Div>
 
   );
@@ -221,14 +224,6 @@ const Div = styled.div`
   user-select: none;
   align-items: center;
   height: 100%;
-  & span {
-    color: white;
-    background-color: #3C355090;
-    padding: 2px 8px;
-    font-size: 24px;
-    position: absolute;
-    z-index: 2;
-  }
 `
 
 const GameBox = styled.div`
@@ -240,6 +235,19 @@ const GameBox = styled.div`
   background-size: cover;
   background-color: #29F;
   overflow: hidden;
+  position: relative;
+  text-align: center;
+
+  span {
+    color: white;
+    background-color: #3C355090;
+    padding: 2px 8px;
+    font-size: 24px;
+    position: absolute;
+    
+    top: 0px;
+    z-index: 2;
+  }
 `
 
 const Ground = styled.div`

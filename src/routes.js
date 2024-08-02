@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home'
 import Game from './pages/Game';
-import Login from './pages/DefaultLogin';
+import DefaultLogin from './pages/DefaultLogin';
 
 
 export default function Router() {
@@ -9,8 +9,8 @@ export default function Router() {
       <BrowserRouter>
         <Routes>
             <Route index element={<Home/>} />
-            <Route path="login" element={<Login/>} />
-            <Route path="register" element={<Login/>} />
+            <Route path="login" element={<DefaultLogin/>} />
+            <Route path="register" element={<DefaultLogin isNewUser/>} />
             <Route path="fly" element={<Game/>} />
         </Routes>
       </BrowserRouter>

@@ -7,11 +7,11 @@ const Button = styled.button`
   font-size: 24px;
   border-radius: 4px;
   padding: 16px;
-  cursor: pointer;
+  cursor: ${(props) => !props.disabled && 'pointer'};
 
   :hover {
-    opacity: 0.9;
-    color: #335;
+    opacity: ${(props) => !props.disabled && 0.9};
+    color: ${(props) => !props.disabled && '#335'};
   }
 `
 

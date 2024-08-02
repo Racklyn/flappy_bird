@@ -1,11 +1,12 @@
 import styled from "styled-components";
 
-function Input({label, password}) {
+function Input({label, password, onChange}) {
     return (
         <InputContainer>
             <label>{label}</label>
             <input
                 type={password ? 'password' : 'text'}
+                onChange={v => onChange(v)}
             />
         </InputContainer>
     )

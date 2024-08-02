@@ -1,5 +1,4 @@
 import './App.css';
-import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Router from './routes';
 import constants from './utils/constants';

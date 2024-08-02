@@ -1,7 +1,7 @@
 import React from "react";
 import styled from 'styled-components';
 
-import bird from '../assets/bird.png'
+import bird from '../assets/birds/yellow.png'
 
 function Bird({size, top, left}){
 
